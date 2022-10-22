@@ -1,0 +1,4 @@
+It contains all the logic calls to Firebase.
+Its not going to contain any logic of the UI
+- won't have buildcontext.
+- won't have error handling.
