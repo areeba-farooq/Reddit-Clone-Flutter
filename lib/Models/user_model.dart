@@ -64,7 +64,7 @@ class UserModel {
       profilePic: map['profilePic'] as String,
       isAuthenticated: map['isAuthenticated'] as bool,
       awards: List<String>.from(
-        (map['awards'] as List<String>),
+        (map['awards']),
       ),
     );
   }

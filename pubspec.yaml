@@ -38,6 +38,7 @@ dependencies:
   fpdart: ^0.3.0
   google_fonts: ^3.0.1
   google_sign_in: ^5.4.2
+  routemaster: ^1.0.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0

@@ -11,6 +11,7 @@ import 'package:reddit_clone/Models/user_model.dart';
 
 import '../../../Core/type_def.dart';
 
+//*****getting Firebase(Auth,Firestore,Googel) instance from firebase provider******//
 final authRepoProvider = Provider(
   (ref) => AuthRepository(
     //!ref.read usually used outside of the buildContext when you don't want to listen any of the changes made in the provider
@@ -40,8 +41,9 @@ class AuthRepository {
 
   CollectionReference get _user =>
       _firestore.collection(FirebaseConstants.usersCollection);
-  late UserModel userModel;
 
+//?Firebase is giving us an option to expose a stream which will allow us and let us know if there is data change in user or not e.g name, email,profilepic etc
+  Stream<User?> get authStateChange => _auth.authStateChanges();
 //**************Signin Google****************//
 
 //! String type for failure
@@ -62,6 +64,7 @@ class AuthRepository {
       //**************Register User****************//
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
+      UserModel userModel;
 
 //?to avoid the karma error we need to check is user new or old
       if (userCredential.additionalUserInfo!.isNewUser) {
@@ -79,12 +82,32 @@ class AuthRepository {
         );
         //**************Save user credentials to database****************//
         await _user.doc(userCredential.user!.uid).set(userModel.toMap());
+      } else {
+        //! first will convert the stream into a Future which means it will get us the first element of the stream
+
+        //! for example stream is a bunch of values keep coming together so it will get very first value of it
+        userModel = await getUserData(userCredential.user!.uid).first;
       }
       return right(userModel);
+    } on FirebaseAuthException catch (e) {
+      //? throwing this firebase exception to next catch block
+      throw e.message!;
     } catch (e) {
       return left(
         Failure(e.toString()),
       );
     }
+  }
+
+  //**************To get the user data Function****************//
+
+  //! if the user is not new then we will ask to firebaseDB to give use back of the old user data containing this uid
+//?this function persist the state of our app(means when user refresh the app it still logged in)
+
+//! stream => to see real time update happening
+  Stream<UserModel> getUserData(String uid) {
+    return _user.doc(uid).snapshots().map(
+          (event) => UserModel.fromMap(event.data() as Map<String, dynamic>),
+        );
   }
 }
