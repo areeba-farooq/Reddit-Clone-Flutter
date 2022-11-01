@@ -45,6 +45,54 @@ class CommunityRepository {
     }
   }
 
+//******to display the create communities in the drawer in which the user have joined **********//
+  Stream<List<CommunityModel>> getUserCommunity(String uid) {
+//? we went to the community collections to find members containing user id then we've got the snapshot which will return the querysnapshot we've map through the querysnapshot then we've ran a for loop so that we get through every querysnapshot
+
+//? because querysnapshot contains the list of documents snapshots, then we are adding documents in the list of communities
+
+//! snapshot => list of querysnapshots
+//!map((event)) => one single querysnapshot
+    return _communities
+        .where('members', arrayContains: uid)
+        .snapshots()
+        .map((event) {
+      List<CommunityModel> communities = [];
+      for (var doc in event.docs) {
+        communities.add(
+          CommunityModel.fromMap(doc.data() as Map<String, dynamic>),
+        );
+      }
+      return communities;
+    });
+  }
+
+//*******To get community by name  ********//
+  Stream<CommunityModel> getCommunityByName(String name) {
+    return _communities.doc(name).snapshots().map((event) =>
+        CommunityModel.fromMap(event.data() as Map<String, dynamic>));
+  }
+
+  //**** Edit Community data saving****/
+
+  FutureVoid editCommunity(CommunityModel communityModel) async {
+    try {
+      return right(
+        _communities.doc(communityModel.name).update(
+              communityModel.toMap(),
+            ),
+      );
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(
+        Failure(
+          e.toString(),
+        ),
+      );
+    }
+  }
+
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);
 }

@@ -48,10 +48,10 @@ class CommunityModel {
 
   factory CommunityModel.fromMap(Map<String, dynamic> map) {
     return CommunityModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      banner: map['banner'] as String,
-      avatar: map['avatar'] as String,
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      banner: map['banner'] ?? '',
+      avatar: map['avatar'] ?? '',
       members: List<String>.from(
         (map['members']),
       ),

@@ -66,23 +66,24 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                       maxLength: 21,
                     ),
                     Center(
-                        child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: ElevatedButton(
-                        onPressed: createCommunity,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: ElevatedButton(
+                          onPressed: createCommunity,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            'Create community',
+                            style: GoogleFonts.lato(
+                                fontSize: 18, fontWeight: FontWeight.w500),
                           ),
                         ),
-                        child: Text(
-                          'Create community',
-                          style: GoogleFonts.lato(
-                              fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
                       ),
-                    ))
+                    ),
                   ]),
             ),
     );
