@@ -33,7 +33,7 @@ final getUserDataProvider = StreamProvider.family((ref, String uid) {
   return authController.getUserData(uid);
 });
 
-//? StateNotifier is similar to hcangeNotifier
+//? StateNotifier is similar to changeNotifier
 //? if any change in state it should notify to all providers which will be listening to it.
 class AuthController extends StateNotifier<bool> {
   final AuthRepository _authRepository;
@@ -63,5 +63,9 @@ class AuthController extends StateNotifier<bool> {
 
   Stream<UserModel> getUserData(String uid) {
     return _authRepository.getUserData(uid);
+  }
+
+  void logOut() async {
+    _authRepository.logOut();
   }
 }

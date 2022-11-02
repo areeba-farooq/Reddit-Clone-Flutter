@@ -6,6 +6,7 @@ import 'package:reddit_clone/Common/error_text.dart';
 import 'package:reddit_clone/Common/loader.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Features/Community/controller/community_controller.dart';
+import 'package:reddit_clone/Models/community_model.dart';
 import 'package:routemaster/routemaster.dart';
 
 class CommunityDetailScreen extends ConsumerWidget {
@@ -14,6 +15,13 @@ class CommunityDetailScreen extends ConsumerWidget {
 
   void navToModTools(BuildContext context) {
     Routemaster.of(context).push('/mod-tools/$name');
+  }
+
+  void joinCommunity(
+      WidgetRef ref, BuildContext context, CommunityModel communityModel) {
+    ref
+        .read(communityControllerProvider.notifier)
+        .joinCommunity(communityModel, context);
   }
 
   @override
@@ -86,7 +94,8 @@ class CommunityDetailScreen extends ConsumerWidget {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 25),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () => joinCommunity(
+                                            ref, context, community),
                                         //?community.members.contains(user.uid) we are checking if the user is the part of that community
                                         child: Text(
                                             community.members.contains(user.uid)

@@ -68,7 +68,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                   TextButton(
                     onPressed: () => save(community),
                     child: const Text('Save'),
-                  )
+                  ),
                 ],
               ),
               body: isLoading

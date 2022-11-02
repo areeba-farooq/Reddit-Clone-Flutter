@@ -44,8 +44,8 @@ class AuthRepository {
 
 //?Firebase is giving us an option to expose a stream which will allow us and let us know if there is data change in user or not e.g name, email,profilepic etc
   Stream<User?> get authStateChange => _auth.authStateChanges();
-//**************Signin Google****************//
 
+//**************Signin Google****************//
 //! String type for failure
 //! userModel type for success
 //?Represents a value of one of two possible types, [Left] or [Right].
@@ -109,5 +109,11 @@ class AuthRepository {
     return _user.doc(uid).snapshots().map(
           (event) => UserModel.fromMap(event.data() as Map<String, dynamic>),
         );
+  }
+
+  //******LOGOUT FUNCTION ********//
+  void logOut() async {
+    await _googleSignIn.signOut();
+    await _auth.signOut();
   }
 }

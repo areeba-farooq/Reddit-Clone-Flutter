@@ -93,6 +93,65 @@ class CommunityRepository {
     }
   }
 
+  //**************Search Community Function********** */
+  Stream<List<CommunityModel>> searchCommunity(String query) {
+    //?we are returning communities where the name of the community is greater than and equal to means it is based on the query if the query is empty then we wanted to be 0 (shows nothing)
+    return _communities
+        .where(
+          'name',
+          isGreaterThanOrEqualTo: query.isEmpty ? 0 : query,
+          //!we wll get -1 error if you dont put "query.isEmpty"
+          isLessThan: query.isEmpty
+              ? null
+              : query.substring(0, query.length - 1) +
+                  String.fromCharCode(
+                    query.codeUnitAt(query.length - 1) + 1,
+                  ),
+        )
+        .snapshots()
+        .map(
+      (event) {
+        List<CommunityModel> communities = [];
+        for (var community in event.docs) {
+          communities.add(
+            CommunityModel.fromMap(
+              community.data() as Map<String, dynamic>,
+            ),
+          );
+        }
+        return communities;
+      },
+    );
+  }
+
+//*******JOIN COMMUNITY FUNCTION *******//
+  FutureVoid joinCommunity(String communityName, String userId) async {
+    try {
+      //! cannot add new users to members list like this [userId] directly
+      return right(_communities.doc(communityName).update({
+        'members': FieldValue.arrayUnion([userId]),
+      }));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  //*******LEAVE COMMUNITY FUNCTION *******//
+  FutureVoid leaveCommunity(String communityName, String userId) async {
+    try {
+      //! cannot add new users to members list like this [userId] directly
+      return right(_communities.doc(communityName).update({
+        'members': FieldValue.arrayRemove([userId]),
+      }));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);
 }
