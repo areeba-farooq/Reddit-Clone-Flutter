@@ -5,6 +5,7 @@ import 'package:reddit_clone/Core/Constants/firebase_constants.dart';
 import 'package:reddit_clone/Core/Providers/firebase_providers.dart';
 import 'package:reddit_clone/Core/failure.dart';
 import 'package:reddit_clone/Core/type_def.dart';
+import 'package:reddit_clone/Features/Community/screens/add_moderator.dart';
 import 'package:reddit_clone/Models/community_model.dart';
 
 //*****getting firestore instance from firebase provider******//
@@ -144,6 +145,19 @@ class CommunityRepository {
       //! cannot add new users to members list like this [userId] directly
       return right(_communities.doc(communityName).update({
         'members': FieldValue.arrayRemove([userId]),
+      }));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  //*******SAVE NEW MODERATORS *******//
+  FutureVoid addMods(String communityName, List<String> uids) async {
+    try {
+      return right(_communities.doc(communityName).update({
+        'mods': uids,
       }));
     } on FirebaseException catch (e) {
       throw e.message!;
