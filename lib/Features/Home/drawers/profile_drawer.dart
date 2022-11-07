@@ -3,11 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Themes/pallets.dart';
+import 'package:routemaster/routemaster.dart';
 
 class ProfileDrawer extends ConsumerWidget {
   const ProfileDrawer({super.key});
   void logOut(WidgetRef ref) {
     ref.read(authControllerProvider.notifier).logOut();
+  }
+
+  void navToUserProfile(BuildContext context, String uid) {
+    Routemaster.of(context).push('u/$uid');
   }
 
   @override
@@ -38,7 +43,7 @@ class ProfileDrawer extends ConsumerWidget {
                 color: Colors.blue,
               ),
               title: const Text('My Profile'),
-              onTap: () {},
+              onTap: () => navToUserProfile(context, user.uid),
             ),
             ListTile(
               leading: Icon(

@@ -6,6 +6,8 @@ import 'package:reddit_clone/Features/Community/screens/create_community_screen.
 import 'package:reddit_clone/Features/Community/screens/editcommunity_screen.dart';
 import 'package:reddit_clone/Features/Community/screens/modtools_screen.dart';
 import 'package:reddit_clone/Features/Home/home_screen.dart';
+import 'package:reddit_clone/Features/UserProfile/screens/edit_profilescreen.dart';
+import 'package:reddit_clone/Features/UserProfile/screens/userprofile_screen.dart';
 import 'package:routemaster/routemaster.dart';
 
 final loggedOutRoute = RouteMap(
@@ -46,6 +48,17 @@ final loggedInRoute = RouteMap(
     '/add-mods/:name': (route) => MaterialPage(
           child: AddModerator(
             name: route.pathParameters['name']!,
+          ),
+        ),
+    '/u/:uid': (route) => MaterialPage(
+          child: UserProfileScreen(
+            uid: route.pathParameters['uid']!,
+          ),
+        ),
+
+    '/edit-profile/:uid': (route) => MaterialPage(
+          child: EditProfileSCreen(
+            uid: route.pathParameters['uid']!,
           ),
         ),
   },

@@ -28,6 +28,7 @@ final communityControllerProvider =
       ref: ref,
       storageRepository: storageRepo);
 });
+
 //************* GET COMMUNITY  BY NAME STREAM PROVIDER ********//
 final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
   return ref
