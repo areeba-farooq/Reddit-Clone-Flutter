@@ -10,7 +10,8 @@ import 'package:reddit_clone/Core/Constants/constants.dart';
 import 'package:reddit_clone/Core/utils.dart';
 import 'package:reddit_clone/Features/Community/controller/community_controller.dart';
 import 'package:reddit_clone/Models/community_model.dart';
-import 'package:reddit_clone/Themes/pallets.dart';
+
+import '../../../Themes/pallets.dart';
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
   final String name;
@@ -59,9 +60,11 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(communityControllerProvider);
+    final currentTheme = ref.watch(themeNotifierProvider);
+
     return ref.watch(getCommunityByNameProvider(widget.name)).when(
         data: (community) => Scaffold(
-              backgroundColor: Pallete.darkModeAppTheme.backgroundColor,
+              backgroundColor: currentTheme.backgroundColor,
               appBar: AppBar(
                 title: const Text('Edit Community'),
                 actions: [
@@ -86,7 +89,8 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                   child: DottedBorder(
                                     borderType: BorderType.RRect,
                                     radius: const Radius.circular(10),
-                                    color: Colors.white,
+                                    color: currentTheme
+                                        .textTheme.bodyText2!.color!,
                                     dashPattern: const [10, 4],
                                     strokeCap: StrokeCap.round,
                                     child: Container(

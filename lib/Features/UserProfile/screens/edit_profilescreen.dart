@@ -1,17 +1,16 @@
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Features/UserProfile/controller/user_pf_controller.dart';
+import 'package:reddit_clone/Themes/pallets.dart';
 
 import '../../../Common/error_text.dart';
 import '../../../Common/loader.dart';
 import '../../../Core/Constants/constants.dart';
 import '../../../Core/utils.dart';
-import '../../../Themes/pallets.dart';
 
 class EditProfileSCreen extends ConsumerStatefulWidget {
   final String uid;
@@ -72,9 +71,10 @@ class _EditProfileSCreenState extends ConsumerState<EditProfileSCreen> {
   @override
   Widget build(BuildContext context) {
     final islaoding = ref.watch(userProfileControllerProvider);
+    final currentTheme = ref.watch(themeNotifierProvider);
     return ref.watch(getUserDataProvider(widget.uid)).when(
         data: (user) => Scaffold(
-              backgroundColor: Pallete.darkModeAppTheme.backgroundColor,
+              backgroundColor: currentTheme.backgroundColor,
               appBar: AppBar(
                 title: const Text('Edit Profile'),
                 actions: [
@@ -99,7 +99,8 @@ class _EditProfileSCreenState extends ConsumerState<EditProfileSCreen> {
                                   child: DottedBorder(
                                     borderType: BorderType.RRect,
                                     radius: const Radius.circular(10),
-                                    color: Colors.white,
+                                    color: currentTheme
+                                        .textTheme.bodyText2!.color!,
                                     dashPattern: const [10, 4],
                                     strokeCap: StrokeCap.round,
                                     child: Container(
