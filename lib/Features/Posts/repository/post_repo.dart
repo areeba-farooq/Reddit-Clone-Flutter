@@ -6,6 +6,7 @@ import '../../../Core/Constants/firebase_constants.dart';
 import '../../../Core/Providers/firebase_providers.dart';
 import '../../../Core/failure.dart';
 import '../../../Core/type_def.dart';
+import '../../../Models/community_model.dart';
 import '../../../Models/post_model.dart';
 
 //*****getting firestore instance from firebase provider******//
@@ -40,6 +41,21 @@ class PostRepository {
         ),
       );
     }
+  }
+
+//**********FETCHING CREATED POSTS FROM FIREBASE**************//
+  Stream<List<PostModel>> fetchUserPosts(List<CommunityModel> communities) {
+    //? grabing the posts by their community names whereIn allows us to pass it list of names. We ordered it according to the date and in the descending order so thw newly released post come at the top and then we are getting it snapshot converting it into a list of posts.
+    return _posts
+        .where('communityName',
+            whereIn: communities.map((e) => e.name).toList())
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((event) => event.docs
+            .map(
+              (e) => PostModel.fromMap(e.data() as Map<String, dynamic>),
+            )
+            .toList());
   }
 
 //*****COLLECTION REFFERENCE FROM FIREBASE ******//

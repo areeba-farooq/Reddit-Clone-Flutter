@@ -14,12 +14,18 @@ import '../../../Core/Providers/storage_repo_provider.dart';
 import '../../Auth/Controller/auth_controller.dart';
 
 //************* POST CONTROLLER PROVIDER ********//
-final PostControllerProvider =
+final postControllerProvider =
     StateNotifierProvider<PostController, bool>((ref) {
   final postRepo = ref.watch(postRepoProvider);
   final storageRepo = ref.watch(storageRepProvider);
   return PostController(
       postRepository: postRepo, ref: ref, storageRepository: storageRepo);
+});
+
+final userPostsProvider =
+    StreamProvider.family((ref, List<CommunityModel> communities) {
+  final postController = ref.watch(postControllerProvider.notifier);
+  return postController.fetchUserPosts(communities);
 });
 
 //************* POST CONTROLLER CLASS ********//
@@ -65,8 +71,8 @@ class PostController extends StateNotifier<bool> {
     );
     final res = await _postRepository.addPost(post);
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'Posted Successfully!');
+    res.fold((l) => showSnackBar(l.message), (r) {
+      showSnackBar('Posted Successfully!');
       Routemaster.of(context).pop();
     });
   }
@@ -99,8 +105,8 @@ class PostController extends StateNotifier<bool> {
     );
     final res = await _postRepository.addPost(post);
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'Posted Successfully!');
+    res.fold((l) => showSnackBar(l.message), (r) {
+      showSnackBar('Posted Successfully!');
       Routemaster.of(context).pop();
     });
   }
@@ -118,7 +124,7 @@ class PostController extends StateNotifier<bool> {
     final imgRes = await _storageRepository.storeFile(
         path: 'posts/${selectedCommunity.name}', id: postId, file: file);
 
-    imgRes.fold((l) => showSnackBar(context, l.message), (r) async {
+    imgRes.fold((l) => showSnackBar(l.message), (r) async {
       final PostModel post = PostModel(
         id: postId,
         title: title,
@@ -136,10 +142,17 @@ class PostController extends StateNotifier<bool> {
       );
       final res = await _postRepository.addPost(post);
       state = false;
-      res.fold((l) => showSnackBar(context, l.message), (r) {
-        showSnackBar(context, 'Posted Successfully!');
+      res.fold((l) => showSnackBar(l.message), (r) {
+        showSnackBar('Posted Successfully!');
         Routemaster.of(context).pop();
       });
     });
+  }
+
+  Stream<List<PostModel>> fetchUserPosts(List<CommunityModel> communities) {
+    if (communities.isNotEmpty) {
+      return _postRepository.fetchUserPosts(communities);
+    }
+    return Stream.value([]);
   }
 }

@@ -50,14 +50,14 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     if (widget.type == 'image' &&
         imageFile != null &&
         titleController.text.isNotEmpty) {
-      ref.read(PostControllerProvider.notifier).shareImagePost(
+      ref.read(postControllerProvider.notifier).shareImagePost(
             context: context,
             title: titleController.text.trim(),
             selectedCommunity: selectedCommunity ?? communities[0],
             file: imageFile,
           );
     } else if (widget.type == 'text' && titleController.text.isNotEmpty) {
-      ref.read(PostControllerProvider.notifier).shareTextPost(
+      ref.read(postControllerProvider.notifier).shareTextPost(
             context: context,
             title: titleController.text.trim(),
             selectedCommunity: selectedCommunity ?? communities[0],
@@ -66,14 +66,14 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     } else if (widget.type == 'link' &&
         linkController.text.isNotEmpty &&
         titleController.text.isNotEmpty) {
-      ref.read(PostControllerProvider.notifier).sharelInkPost(
+      ref.read(postControllerProvider.notifier).sharelInkPost(
             context: context,
             title: titleController.text.trim(),
             selectedCommunity: selectedCommunity ?? communities[0],
             link: linkController.text.trim(),
           );
     } else {
-      showSnackBar(context, 'Please enter all the fields!');
+      showSnackBar('Please enter all the fields!');
     }
   }
 
@@ -83,7 +83,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
     final isTypeText = widget.type == 'text';
     final isTypeLink = widget.type == 'link';
     final currentTheme = ref.watch(themeNotifierProvider);
-    final isLoading = ref.watch(PostControllerProvider);
+    final isLoading = ref.watch(postControllerProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text('Post ${widget.type}'),

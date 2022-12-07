@@ -1,14 +1,19 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:reddit_clone/main.dart';
 
-void showSnackBar(BuildContext context, String text) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(text),
-      ),
-    );
+void showSnackBar(String text) {
+  scaffoldMessengerKey.currentState?.showSnackBar(
+    SnackBar(
+      content: Text(text),
+    ),
+  );
+  // ..hideCurrentSnackBar()
+  // ..showSnackBar(
+  //   SnackBar(
+  //     content: Text(text),
+  //   ),
+  // );
 }
 
 Future<FilePickerResult?> pickImage() async {

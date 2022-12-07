@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reddit_clone/Core/utils.dart';
 import 'package:reddit_clone/Features/Auth/Repository/auth_repo.dart';
 
 import '../../../Models/user_model.dart';
@@ -53,7 +52,7 @@ class AuthController extends StateNotifier<bool> {
     final user = await _authRepository.signinWithGoogle();
     state = false; //loading stops
     user.fold(
-        (l) => showSnackBar(context, l.message),
+        (l) => print(l.message.toString()),
 
         //?_ref.read(userProvider) = this gives us access to userModel not anythin to update.
         //?_ref.read(userProvider.notifier) with this notifier we have access to multiple methods that will allow us to change the content

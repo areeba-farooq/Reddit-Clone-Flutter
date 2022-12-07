@@ -51,7 +51,7 @@ class UserProfileController extends StateNotifier<bool> {
         file: profileFile,
       );
       res.fold(
-        (l) => showSnackBar(context, l.message),
+        (l) => showSnackBar(l.message),
         (r) => user = user.copyWith(profilePic: r),
       );
     }
@@ -62,7 +62,7 @@ class UserProfileController extends StateNotifier<bool> {
         file: bannerFile,
       );
       res.fold(
-        (l) => showSnackBar(context, l.message),
+        (l) => showSnackBar(l.message),
         (r) => user = user.copyWith(banner: r),
       );
     }
@@ -70,7 +70,7 @@ class UserProfileController extends StateNotifier<bool> {
     //* if user don't change anything it will return as it is file
     final res = await _userProfileRepository.editProfile(user);
     state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
+    res.fold((l) => showSnackBar(l.message), (r) {
       //? update this userprovider
       _ref.read(userProvider.notifier).update((state) => user);
       Routemaster.of(context).pop();

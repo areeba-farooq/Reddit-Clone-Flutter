@@ -17,6 +17,9 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
@@ -42,6 +45,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     return ref.watch(authStateChangeProvider).when(
         data: (data) => MaterialApp.router(
+              scaffoldMessengerKey: scaffoldMessengerKey, // add this
+
               debugShowCheckedModeBanner: false,
               title: 'Reddit Clone with Flutter',
               theme: ref.watch(themeNotifierProvider),
