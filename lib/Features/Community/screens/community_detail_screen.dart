@@ -9,6 +9,8 @@ import 'package:reddit_clone/Features/Community/controller/community_controller.
 import 'package:reddit_clone/Models/community_model.dart';
 import 'package:routemaster/routemaster.dart';
 
+import '../../../Common/post_card.dart';
+
 class CommunityDetailScreen extends ConsumerWidget {
   final String name;
   const CommunityDetailScreen({super.key, required this.name});
@@ -115,7 +117,25 @@ class CommunityDetailScreen extends ConsumerWidget {
                     ),
                   ];
                 },
-                body: const Text('Dispalying Post')),
+                body: ref
+                    .watch(
+                        getCoomunityPostProvider(name.replaceAll('%20', ' ')))
+                    .when(
+                      data: (data) {
+                        return ListView.builder(
+                            itemCount: data.length,
+                            itemBuilder: (context, i) {
+                              final post = data[i];
+                              return PostCard(
+                                postModel: post,
+                              );
+                            });
+                      },
+                      error: (error, stackTrace) {
+                        return ErrorText(errortxt: error.toString());
+                      },
+                      loading: () => const Loader(),
+                    )),
             error: (error, stackTrace) => ErrorText(
               errortxt: error.toString(),
             ),

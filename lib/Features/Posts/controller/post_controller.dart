@@ -78,7 +78,7 @@ class PostController extends StateNotifier<bool> {
   }
 
 //************* SHARE lINK FUNCTION ********//
-  void sharelInkPost({
+  void shareLinkPost({
     required BuildContext context,
     required String title,
     required CommunityModel selectedCommunity,
@@ -149,10 +149,30 @@ class PostController extends StateNotifier<bool> {
     });
   }
 
+//**********FETCHING CREATED POSTS FROM FIREBASE**************//
   Stream<List<PostModel>> fetchUserPosts(List<CommunityModel> communities) {
     if (communities.isNotEmpty) {
       return _postRepository.fetchUserPosts(communities);
     }
     return Stream.value([]);
+  }
+
+  //**********DELETE POST FUNCTION**************//
+  void deletePost(PostModel post) async {
+    final res = await _postRepository.deletePost(post);
+    res.fold(
+        (l) => showSnackBar(l.message), (r) => showSnackBar('Post Deleted!'));
+  }
+
+  //**********UPVOTE FUNCTION**************//
+  void upvote(PostModel post) async {
+    final uid = _ref.read(userProvider)!.uid;
+    _postRepository.upvote(post, uid);
+  }
+
+  //**********DOWNVOTE FUNCTION**************//
+  void downvote(PostModel post) async {
+    final uid = _ref.read(userProvider)!.uid;
+    _postRepository.downvote(post, uid);
   }
 }

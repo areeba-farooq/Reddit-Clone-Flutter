@@ -9,6 +9,7 @@ import 'package:routemaster/routemaster.dart';
 
 import '../../../Core/Providers/storage_repo_provider.dart';
 import '../../../Core/utils.dart';
+import '../../../Models/post_model.dart';
 
 //*****getting firestore instance from firebase provider******//
 final userProfileControllerProvider =
@@ -19,6 +20,10 @@ final userProfileControllerProvider =
       userProfileRepository: userRepo,
       ref: ref,
       storageRepository: storageRepo);
+});
+//************* GETTING USER POSTS STREAM PROVIDER ********//
+final getUserPostProvider = StreamProvider.family((ref, String uid) {
+  return ref.read(userProfileControllerProvider.notifier).getUserPost(uid);
 });
 
 class UserProfileController extends StateNotifier<bool> {
@@ -75,5 +80,10 @@ class UserProfileController extends StateNotifier<bool> {
       _ref.read(userProvider.notifier).update((state) => user);
       Routemaster.of(context).pop();
     });
+  }
+
+  //***********DISPLAYING USER POST TO PF************//
+  Stream<List<PostModel>> getUserPost(String uid) {
+    return _userProfileRepository.getUserPost(uid);
   }
 }

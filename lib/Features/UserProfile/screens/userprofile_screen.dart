@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reddit_clone/Features/UserProfile/controller/user_pf_controller.dart';
 import 'package:routemaster/routemaster.dart';
 
 import '../../../Common/error_text.dart';
 import '../../../Common/loader.dart';
+import '../../../Common/post_card.dart';
 import '../../Auth/Controller/auth_controller.dart';
 
 class UserProfileScreen extends ConsumerWidget {
@@ -95,7 +97,22 @@ class UserProfileScreen extends ConsumerWidget {
                     ),
                   ];
                 },
-                body: const Text('Dispalying Post')),
+                body: ref.watch(getUserPostProvider(uid)).when(
+                      data: (data) {
+                        return ListView.builder(
+                            itemCount: data.length,
+                            itemBuilder: (context, i) {
+                              final post = data[i];
+                              return PostCard(
+                                postModel: post,
+                              );
+                            });
+                      },
+                      error: (error, stackTrace) {
+                        return ErrorText(errortxt: error.toString());
+                      },
+                      loading: () => const Loader(),
+                    )),
             error: (error, stackTrace) => ErrorText(
               errortxt: error.toString(),
             ),

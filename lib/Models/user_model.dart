@@ -57,12 +57,12 @@ class UserModel {
 //! WHATEVER VALUE WE PASS AS A MAP, IT WILL CONVERT IT TO A USERMODEL CLASS AND EXTRACTING THE VALUES FORM IT
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      karma: map['karma'] as int,
-      uid: map['uid'] as String,
-      banner: map['banner'] as String,
-      username: map['username'] as String,
-      profilePic: map['profilePic'] as String,
-      isAuthenticated: map['isAuthenticated'] as bool,
+      karma: map['karma'] ?? '',
+      uid: map['uid'] ?? '',
+      banner: map['banner'] ?? '',
+      username: map['username'] ?? '',
+      profilePic: map['profilePic'] ?? '',
+      isAuthenticated: map['isAuthenticated'] ?? '',
       awards: List<String>.from(
         (map['awards']),
       ),

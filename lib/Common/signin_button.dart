@@ -32,7 +32,7 @@ class SigninButton extends ConsumerWidget {
           style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.w500),
         ),
         style: ElevatedButton.styleFrom(
-          primary: Pallete.greyColor,
+          backgroundColor: Pallete.greyColor,
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),

@@ -1,11 +1,16 @@
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_clone/Common/error_text.dart';
 import 'package:reddit_clone/Core/Constants/constants.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
+import 'package:reddit_clone/Features/Community/controller/community_controller.dart';
 import 'package:reddit_clone/Features/Posts/controller/post_controller.dart';
 import 'package:reddit_clone/Models/post_model.dart';
 import 'package:reddit_clone/Themes/pallets.dart';
+import 'package:routemaster/routemaster.dart';
+
+import 'loader.dart';
 
 class PostCard extends ConsumerWidget {
   final PostModel postModel;
@@ -14,20 +19,41 @@ class PostCard extends ConsumerWidget {
     super.key,
   });
 
+  void deletePost(WidgetRef ref) {
+    ref.read(postControllerProvider.notifier).deletePost(postModel);
+  }
+
+  void upvotePost(WidgetRef ref) async {
+    ref.read(postControllerProvider.notifier).upvote(postModel);
+  }
+
+  void downvotePost(WidgetRef ref) async {
+    ref.read(postControllerProvider.notifier).downvote(postModel);
+  }
+
+  //? we can navigate to the user profile who posted in the group
+  void navToUserPF(BuildContext context) {
+    Routemaster.of(context).push('/u/${postModel.uid}');
+  }
+
+  void navToCommunity(BuildContext context) {
+    Routemaster.of(context).push('/r/${postModel.communityName}');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isTypeImage = postModel.type == 'image';
     final isTypeText = postModel.type == 'text';
     final isTypeLink = postModel.type == 'link';
     final currentTheme = ref.watch(themeNotifierProvider);
-    final isLoading = ref.watch(postControllerProvider);
+    // final isLoading = ref.watch(postControllerProvider);
     final user = ref.watch(userProvider);
     return Column(
       children: [
         Container(
           decoration:
               BoxDecoration(color: currentTheme.drawerTheme.backgroundColor),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
             children: [
               Expanded(
@@ -35,7 +61,7 @@ class PostCard extends ConsumerWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 16)
+                              vertical: 4, horizontal: 10)
                           .copyWith(right: 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,10 +71,13 @@ class PostCard extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        postModel.communityProfilePic),
-                                    radius: 16,
+                                  GestureDetector(
+                                    onTap: () => navToCommunity(context),
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          postModel.communityProfilePic),
+                                      radius: 16,
+                                    ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),
@@ -60,10 +89,13 @@ class PostCard extends ConsumerWidget {
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(
-                                          'u/${postModel.username}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
+                                        GestureDetector(
+                                          onTap: () => navToUserPF(context),
+                                          child: Text(
+                                            'u/${postModel.username}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -73,7 +105,7 @@ class PostCard extends ConsumerWidget {
                               ),
                               if (postModel.uid == user!.uid)
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () => deletePost(ref),
                                   icon: Icon(
                                     Icons.delete,
                                     color: Pallete.redColor,
@@ -105,9 +137,9 @@ class PostCard extends ConsumerWidget {
                                     const EdgeInsets.symmetric(horizontal: 15),
                                 child: Text(postModel.description!)),
                           if (isTypeLink)
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.35,
-                              width: double.infinity,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 10),
                               child: AnyLinkPreview(
                                 displayDirection:
                                     UIDirection.uiDirectionHorizontal,
@@ -115,11 +147,12 @@ class PostCard extends ConsumerWidget {
                               ),
                             ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () => upvotePost(ref),
                                     icon: Icon(
                                       Constants.up,
                                       size: 30,
@@ -134,12 +167,12 @@ class PostCard extends ConsumerWidget {
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () => downvotePost(ref),
                                     icon: Icon(
                                       Constants.down,
                                       size: 30,
                                       color:
-                                          postModel.upvotes.contains(user.uid)
+                                          postModel.downvotes.contains(user.uid)
                                               ? Pallete.blueColor
                                               : null,
                                     ),
@@ -158,6 +191,25 @@ class PostCard extends ConsumerWidget {
                                   ),
                                 ],
                               ),
+
+                              //**Want to show moderator icon if the user is moderator**// to access moderator
+                              ref
+                                  .watch(getCommunityByNameProvider(
+                                      postModel.communityName))
+                                  .when(
+                                      data: (data) {
+                                        if (data.mods.contains(user.uid)) {
+                                          return IconButton(
+                                            onPressed: () => deletePost(ref),
+                                            icon: const Icon(
+                                                Icons.admin_panel_settings),
+                                          );
+                                        }
+                                        return const SizedBox();
+                                      },
+                                      error: (error, stackTrace) =>
+                                          ErrorText(errortxt: error.toString()),
+                                      loading: () => const Loader()),
                             ],
                           ),
                         ],

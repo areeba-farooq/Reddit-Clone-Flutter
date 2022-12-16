@@ -52,7 +52,7 @@ class AuthController extends StateNotifier<bool> {
     final user = await _authRepository.signinWithGoogle();
     state = false; //loading stops
     user.fold(
-        (l) => print(l.message.toString()),
+        (l) => (l.message.toString()),
 
         //?_ref.read(userProvider) = this gives us access to userModel not anythin to update.
         //?_ref.read(userProvider.notifier) with this notifier we have access to multiple methods that will allow us to change the content

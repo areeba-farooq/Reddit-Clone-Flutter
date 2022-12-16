@@ -5,8 +5,9 @@ import 'package:reddit_clone/Core/Constants/firebase_constants.dart';
 import 'package:reddit_clone/Core/Providers/firebase_providers.dart';
 import 'package:reddit_clone/Core/failure.dart';
 import 'package:reddit_clone/Core/type_def.dart';
-import 'package:reddit_clone/Features/Community/screens/add_moderator.dart';
 import 'package:reddit_clone/Models/community_model.dart';
+
+import '../../../Models/post_model.dart';
 
 //*****getting firestore instance from firebase provider******//
 final communityRepoProvider = Provider(
@@ -166,6 +167,26 @@ class CommunityRepository {
     }
   }
 
+  //*************DISPLAY COMMUNIT POSTS TO THEIR PF**********//
+  Stream<List<PostModel>> getCommunityPost(String name) {
+    //? we are returning post where the communityName is equal to the name we are passing as a parameter.
+    //?ORDEREDBY: we want newly created post at the top
+    return _posts
+        .where('communityName', isEqualTo: name)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => PostModel.fromMap(e.data() as Map<String, dynamic>),
+              )
+              .toList(),
+        );
+  }
+
   CollectionReference get _communities =>
       _firestore.collection(FirebaseConstants.communitiesCollection);
+
+  CollectionReference get _posts =>
+      _firestore.collection(FirebaseConstants.postsCollection);
 }

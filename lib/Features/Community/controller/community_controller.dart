@@ -12,6 +12,8 @@ import 'package:reddit_clone/Features/Community/repository/community_repo.dart';
 import 'package:reddit_clone/Models/community_model.dart';
 import 'package:routemaster/routemaster.dart';
 
+import '../../../Models/post_model.dart';
+
 //************* USER COMMUNITY STREAM PROVIDER ********//
 final userCommunitiesProvider = StreamProvider((ref) {
   final communityController = ref.watch(communityControllerProvider.notifier);
@@ -39,6 +41,10 @@ final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
 //************* SERACH COMMUNITY STREAM PROVIDER ********//
 final searchCommunityProvider = StreamProvider.family((ref, String query) {
   return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
+});
+//************* GETTING COMMUNITY POSTS STREAM PROVIDER ********//
+final getCoomunityPostProvider = StreamProvider.family((ref, String name) {
+  return ref.read(communityControllerProvider.notifier).getCommunityPost(name);
 });
 
 //************* COMMUNITY CONTROLLER CLASS ********//
@@ -164,5 +170,10 @@ class CommunityController extends StateNotifier<bool> {
       (l) => showSnackBar(l.message),
       (r) => Routemaster.of(context).pop(),
     );
+  }
+
+  //***********DISPLAYING COMMUNITY POST TO PF************//
+  Stream<List<PostModel>> getCommunityPost(String name) {
+    return _communityRepository.getCommunityPost(name);
   }
 }

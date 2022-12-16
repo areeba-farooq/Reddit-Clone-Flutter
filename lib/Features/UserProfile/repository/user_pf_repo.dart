@@ -7,6 +7,7 @@ import '../../../Core/Constants/firebase_constants.dart';
 import '../../../Core/Providers/firebase_providers.dart';
 import '../../../Core/failure.dart';
 import '../../../Core/type_def.dart';
+import '../../../Models/post_model.dart';
 
 //*****getting firestore instance from firebase provider******//
 final userProfileRepoProvider = Provider(
@@ -22,6 +23,8 @@ class UserProfileRepository {
       : _firestore = firestore;
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
+  CollectionReference get _posts =>
+      _firestore.collection(FirebaseConstants.postsCollection);
 
   //*******EDIT PROFILE FUNCTION *******//
   FutureVoid editProfile(UserModel userModel) async {
@@ -36,5 +39,22 @@ class UserProfileRepository {
     } catch (e) {
       return left(Failure(e.toString()));
     }
+  }
+
+//*************DISPLAY USER POSTS TO THEIR PF**********//
+  Stream<List<PostModel>> getUserPost(String uid) {
+    //? we are returning post where the user uid is equal to the uid we are passing as a parameter.
+    //?ORDEREDBY: we want newly created post at the top
+    return _posts
+        .where('uid', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => PostModel.fromMap(e.data() as Map<String, dynamic>),
+              )
+              .toList(),
+        );
   }
 }
