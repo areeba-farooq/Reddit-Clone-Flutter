@@ -6,6 +6,7 @@ import '../../../Core/Constants/firebase_constants.dart';
 import '../../../Core/Providers/firebase_providers.dart';
 import '../../../Core/failure.dart';
 import '../../../Core/type_def.dart';
+import '../../../Models/comment_model.dart';
 import '../../../Models/community_model.dart';
 import '../../../Models/post_model.dart';
 
@@ -111,8 +112,51 @@ class PostRepository {
     }
   }
 
+  //**********GETTING POSTS FUNCTION**************//
+  Stream<PostModel> getPostById(String postId) {
+    return _posts.doc(postId).snapshots().map(
+          (event) => PostModel.fromMap(event.data() as Map<String, dynamic>),
+        );
+  }
+
+//*****ADD COMMENT FUNCTION ******//
+  FutureVoid addComment(CommentModel comment) async {
+    try {
+      await _comments.doc(comment.id).set(
+            comment.toMap(),
+          );
+      return right(_posts.doc(comment.postId).update({
+        'commentCount': FieldValue.increment(1),
+      }));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(
+        Failure(
+          e.toString(),
+        ),
+      );
+    }
+  }
+
+  //*****GETTING COMMENTS FUNCTION ******//
+  Stream<List<CommentModel>> getComments(String postId) {
+    return _comments
+        .where('postId', isEqualTo: postId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((event) => event.docs
+            .map(
+              (e) => CommentModel.fromMap(e.data() as Map<String, dynamic>),
+            )
+            .toList());
+  }
+
 //*****COLLECTION REFFERENCE FROM FIREBASE ******//
 
   CollectionReference get _posts =>
       _firestore.collection(FirebaseConstants.postsCollection);
+
+  CollectionReference get _comments =>
+      _firestore.collection(FirebaseConstants.commentsCollection);
 }

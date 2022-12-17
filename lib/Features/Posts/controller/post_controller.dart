@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_clone/Core/utils.dart';
 import 'package:reddit_clone/Features/Posts/repository/post_repo.dart';
+import 'package:reddit_clone/Models/comment_model.dart';
 import 'package:reddit_clone/Models/community_model.dart';
 import 'package:reddit_clone/Models/post_model.dart';
 import 'package:routemaster/routemaster.dart';
@@ -22,10 +23,25 @@ final postControllerProvider =
       postRepository: postRepo, ref: ref, storageRepository: storageRepo);
 });
 
+//************* USER POST PROVIDER ********//
+
 final userPostsProvider =
     StreamProvider.family((ref, List<CommunityModel> communities) {
   final postController = ref.watch(postControllerProvider.notifier);
   return postController.fetchUserPosts(communities);
+});
+
+//************* GETTING POST PROVIDER ********//
+
+final getPostsByIDProvider = StreamProvider.family((ref, String postID) {
+  final postController = ref.watch(postControllerProvider.notifier);
+  return postController.getPostById(postID);
+});
+
+//************* GETTING COMMENTS PROVIDER ********//
+final getCommentsProvider = StreamProvider.family((ref, String postID) {
+  final postController = ref.watch(postControllerProvider.notifier);
+  return postController.fetchComments(postID);
 });
 
 //************* POST CONTROLLER CLASS ********//
@@ -174,5 +190,36 @@ class PostController extends StateNotifier<bool> {
   void downvote(PostModel post) async {
     final uid = _ref.read(userProvider)!.uid;
     _postRepository.downvote(post, uid);
+  }
+
+  //**********GETTING POSTS  FUNCTION**************//
+  Stream<PostModel> getPostById(String postId) {
+    return _postRepository.getPostById(postId);
+  }
+
+  //*****ADD COMMENT FUNCTION ******//
+  void addComment(
+      {required String text,
+      required PostModel post,
+      required BuildContext context}) async {
+    state = true;
+    final user = _ref.read(userProvider)!;
+    String commentId = const Uuid().v1();
+    CommentModel comment = CommentModel(
+        id: commentId,
+        text: text,
+        createdAt: DateTime.now(),
+        postId: post.id,
+        username: user.username,
+        profilePic: user.profilePic);
+    _postRepository.addComment(comment);
+    final res = await _postRepository.addComment(comment);
+    state = false;
+    res.fold((l) => showSnackBar(l.message), (r) => null);
+  }
+
+  //*****GETTING COMMENTS FUNCTION ******//
+  Stream<List<CommentModel>> fetchComments(String postId) {
+    return _postRepository.getComments(postId);
   }
 }

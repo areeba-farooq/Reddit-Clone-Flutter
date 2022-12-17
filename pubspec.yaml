@@ -30,6 +30,7 @@ dependencies:
   any_link_preview: ^2.0.9
   cloud_firestore: ^4.0.1
   cupertino_icons: ^1.0.2
+  device_info_plus: ^8.0.0
   dotted_border: ^2.0.0+3
   file_picker: ^5.2.2
   firebase_auth: ^4.0.1

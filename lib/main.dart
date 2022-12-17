@@ -2,14 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reddit_clone/Common/error_text.dart';
-import 'package:reddit_clone/Common/loader.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Models/user_model.dart';
-import 'package:reddit_clone/Themes/pallets.dart';
 import 'package:reddit_clone/firebase_options.dart';
-import 'package:reddit_clone/Routes/router.dart';
 import 'package:routemaster/routemaster.dart';
+
+import 'Common/error_text.dart';
+import 'Common/loader.dart';
+import 'Routes/router.dart';
+import 'Themes/pallets.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
