@@ -31,6 +31,12 @@ class PostCard extends ConsumerWidget {
     ref.read(postControllerProvider.notifier).downvote(postModel);
   }
 
+  void awardPost(WidgetRef ref, String award, BuildContext buildContext) async {
+    ref
+        .read(postControllerProvider.notifier)
+        .awardPost(postModel: postModel, award: award, context: buildContext);
+  }
+
   //? we can navigate to the user profile who posted in the group
   void navToUserPF(BuildContext context) {
     Routemaster.of(context).push('/u/${postModel.uid}');
@@ -117,8 +123,29 @@ class PostCard extends ConsumerWidget {
                                 ),
                             ],
                           ),
+                          //******DISPLAYING AWARDS*********//
+                          if (postModel.awards.isNotEmpty) ...[
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            SizedBox(
+                              height: 25,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: postModel.awards.length,
+                                  itemBuilder: (context, index) {
+                                    final award = postModel.awards[index];
+                                    return Image.asset(
+                                      Constants.awards[award]!,
+                                      height: 25,
+                                    );
+                                  }),
+                            ),
+                          ],
+
                           Padding(
-                            padding: const EdgeInsets.only(top: 10.0),
+                            padding:
+                                const EdgeInsets.only(top: 10.0, bottom: 8),
                             child: Text(
                               postModel.title,
                               style: const TextStyle(
@@ -214,6 +241,44 @@ class PostCard extends ConsumerWidget {
                                       error: (error, stackTrace) =>
                                           ErrorText(errortxt: error.toString()),
                                       loading: () => const Loader()),
+
+                              //************AWARDS******//
+                              IconButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => Dialog(
+                                      backgroundColor:
+                                          currentTheme.backgroundColor,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20),
+                                        child: GridView.builder(
+                                          shrinkWrap: true,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 4),
+                                          itemCount: user.awards.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            final award = user.awards[index];
+                                            return GestureDetector(
+                                              onTap: () => awardPost(
+                                                  ref, award, context),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Image.asset(
+                                                    Constants.awards[award]!),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.card_giftcard_outlined),
+                              ),
                             ],
                           ),
                         ],

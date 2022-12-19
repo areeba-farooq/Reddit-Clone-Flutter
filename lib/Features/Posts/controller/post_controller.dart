@@ -242,4 +242,27 @@ class PostController extends StateNotifier<bool> {
   Stream<List<CommentModel>> fetchComments(String postId) {
     return _postRepository.getComments(postId);
   }
+
+  //*****GIVE AWARDS TO POSTS FUNCTION ******//
+  void awardPost({
+    required PostModel postModel,
+    required String award,
+    required BuildContext context,
+  }) async {
+    final user = _ref.read(userProvider)!;
+    final res = await _postRepository.awardPost(postModel, award, user.uid);
+    res.fold((l) => showSnackBar(l.message), (r) {
+      //? updating the user karma
+      _ref
+          .read(userProfileControllerProvider.notifier)
+          .updateUserKarma(UserKarma.awardPost);
+      //? Now the award remove from the user
+      _ref.read(userProvider.notifier).update((state) {
+        //?state can be null, if its null don't do anything, if its not null then remove particular award frm awards aray.
+        state?.awards.remove(award);
+        return state; // return newly made state;
+      });
+      Routemaster.of(context).pop();
+    });
+  }
 }

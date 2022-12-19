@@ -77,7 +77,16 @@ class AuthRepository {
           karma: 0,
           profilePic: userCredential.user!.photoURL ?? Constants.avatarDefault,
           uid: userCredential.user!.uid,
-          awards: [],
+          awards: [
+            'awesomeAns',
+            'gold',
+            'platinum',
+            'helpful',
+            'plusone',
+            'rocket',
+            'thankyou',
+            'til',
+          ],
           isAuthenticated: true,
         );
         //**************Save user credentials to database****************//

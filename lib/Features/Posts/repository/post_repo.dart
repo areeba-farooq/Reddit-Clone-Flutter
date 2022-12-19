@@ -152,6 +152,39 @@ class PostRepository {
             .toList());
   }
 
+  //*****GIVE AWARDS TO POSTS FUNCTION ******//
+  FutureVoid awardPost(PostModel post, String award, String senderID) async {
+    try {
+      //?went to the post collections -> post id -> update awards section -> so we can display the awards right above the post
+      //!AWARDS ADDED TO THE POST
+      _posts.doc(post.id).update({
+        'awards': FieldValue.arrayUnion([award]),
+      });
+      //? whoever the sender gifting the awards to post, that awards will be remove from that senderID
+      _user.doc(senderID).update({
+        'awards': FieldValue.arrayRemove([award]),
+      });
+//? the person whom we are gifting awards --> will add that awrads to the user
+      //!AWARDS ADDED TO THE USER
+
+      return right(
+        _user.doc(post.uid).update(
+          {
+            'awards': FieldValue.arrayUnion([award]),
+          },
+        ),
+      );
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(
+        Failure(
+          e.toString(),
+        ),
+      );
+    }
+  }
+
 //*****COLLECTION REFFERENCE FROM FIREBASE ******//
 
   CollectionReference get _posts =>
@@ -159,4 +192,6 @@ class PostRepository {
 
   CollectionReference get _comments =>
       _firestore.collection(FirebaseConstants.commentsCollection);
+  CollectionReference get _user =>
+      _firestore.collection(FirebaseConstants.usersCollection);
 }
