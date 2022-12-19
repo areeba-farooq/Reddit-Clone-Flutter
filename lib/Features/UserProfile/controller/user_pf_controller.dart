@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_clone/Core/Enums/enums.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Features/UserProfile/repository/user_pf_repo.dart';
 import 'package:reddit_clone/Models/user_model.dart';
@@ -85,5 +86,19 @@ class UserProfileController extends StateNotifier<bool> {
   //***********DISPLAYING USER POST TO PF************//
   Stream<List<PostModel>> getUserPost(String uid) {
     return _userProfileRepository.getUserPost(uid);
+  }
+
+  //*******KARMA FUNCTION *******//
+  void updateUserKarma(UserKarma userKarma) async {
+    //? read the user
+    UserModel user = _ref.read(userProvider)!;
+    //? userKarma is the enum in which there is a property of karma, we have just copied that
+    //! user.karma is whatever the karma user has already
+    user = user.copyWith(karma: user.karma + userKarma.karma);
+    //? now we are talk with our repository
+    final res = await _userProfileRepository.updateUserKarma(user);
+    //? for success , update the user provider withn the newly karma that we have
+    res.fold((l) => showSnackBar(l.message),
+        (r) => _ref.read(userProvider.notifier).update((state) => user));
   }
 }

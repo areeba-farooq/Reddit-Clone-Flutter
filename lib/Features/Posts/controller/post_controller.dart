@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_clone/Core/Enums/enums.dart';
 import 'package:reddit_clone/Core/utils.dart';
 import 'package:reddit_clone/Features/Posts/repository/post_repo.dart';
+import 'package:reddit_clone/Features/UserProfile/controller/user_pf_controller.dart';
 import 'package:reddit_clone/Models/comment_model.dart';
 import 'package:reddit_clone/Models/community_model.dart';
 import 'package:reddit_clone/Models/post_model.dart';
@@ -60,6 +62,7 @@ class PostController extends StateNotifier<bool> {
         super(false);
 
 //************* SHARE TEXT FUNCTION ********//
+//? whenever user share a post we want to update the karma
   void shareTextPost({
     required BuildContext context,
     required String title,
@@ -86,6 +89,9 @@ class PostController extends StateNotifier<bool> {
       description: description,
     );
     final res = await _postRepository.addPost(post);
+    _ref
+        .read(userProfileControllerProvider.notifier)
+        .updateUserKarma(UserKarma.textPost);
     state = false;
     res.fold((l) => showSnackBar(l.message), (r) {
       showSnackBar('Posted Successfully!');
@@ -94,6 +100,7 @@ class PostController extends StateNotifier<bool> {
   }
 
 //************* SHARE lINK FUNCTION ********//
+//? whenever user share a post we want to update the karma
   void shareLinkPost({
     required BuildContext context,
     required String title,
@@ -120,6 +127,9 @@ class PostController extends StateNotifier<bool> {
       link: link,
     );
     final res = await _postRepository.addPost(post);
+    _ref
+        .read(userProfileControllerProvider.notifier)
+        .updateUserKarma(UserKarma.linkPost);
     state = false;
     res.fold((l) => showSnackBar(l.message), (r) {
       showSnackBar('Posted Successfully!');
@@ -128,6 +138,7 @@ class PostController extends StateNotifier<bool> {
   }
 
 //************* SHARE IMAGE FUNCTION ********//
+//? whenever user share a post we want to update the karma
   void shareImagePost({
     required BuildContext context,
     required String title,
@@ -157,6 +168,9 @@ class PostController extends StateNotifier<bool> {
         link: r,
       );
       final res = await _postRepository.addPost(post);
+      _ref
+          .read(userProfileControllerProvider.notifier)
+          .updateUserKarma(UserKarma.imagePost);
       state = false;
       res.fold((l) => showSnackBar(l.message), (r) {
         showSnackBar('Posted Successfully!');
@@ -176,6 +190,9 @@ class PostController extends StateNotifier<bool> {
   //**********DELETE POST FUNCTION**************//
   void deletePost(PostModel post) async {
     final res = await _postRepository.deletePost(post);
+    _ref
+        .read(userProfileControllerProvider.notifier)
+        .updateUserKarma(UserKarma.deletePost);
     res.fold(
         (l) => showSnackBar(l.message), (r) => showSnackBar('Post Deleted!'));
   }
@@ -214,6 +231,9 @@ class PostController extends StateNotifier<bool> {
         profilePic: user.profilePic);
     _postRepository.addComment(comment);
     final res = await _postRepository.addComment(comment);
+    _ref
+        .read(userProfileControllerProvider.notifier)
+        .updateUserKarma(UserKarma.comment);
     state = false;
     res.fold((l) => showSnackBar(l.message), (r) => null);
   }
