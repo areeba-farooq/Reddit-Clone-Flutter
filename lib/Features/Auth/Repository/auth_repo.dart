@@ -11,7 +11,7 @@ import 'package:reddit_clone/Models/user_model.dart';
 
 import '../../../Core/type_def.dart';
 
-//*****getting Firebase(Auth,Firestore,Googel) instance from firebase provider******//
+//*****getting Firebase(Auth,Firestore,Google) instance from firebase provider******//
 final authRepoProvider = Provider(
   (ref) => AuthRepository(
     //!ref.read usually used outside of the buildContext when you don't want to listen any of the changes made in the provider
@@ -45,14 +45,14 @@ class AuthRepository {
 //?Firebase is giving us an option to expose a stream which will allow us and let us know if there is data change in user or not e.g name, email,profilepic etc
   Stream<User?> get authStateChange => _auth.authStateChanges();
 
-//**************Signin Google****************//
+//**************SiGNIN GOOGLE FUNCTION****************//
 //! String type for failure
 //! userModel type for success
 //?Represents a value of one of two possible types, [Left] or [Right].
 //?[Either] is commonly used to handle errors.
 //!Future<Either<String, UserModel>>
-
-  FutureEither<UserModel> signinWithGoogle() async {
+//isFromLogin: if the user signin with the guest account and then decided to signin weith Google then we will convert that guest account into google account.
+  FutureEither<UserModel> signinWithGoogle(bool isFromLogin) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       final googleAuth = await googleUser?.authentication;
@@ -61,14 +61,22 @@ class AuthRepository {
         idToken: googleAuth?.idToken,
       );
       //? User credential
-      //**************Register User****************//
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      UserCredential userCredential;
+      //! if user is from login screen then the user should signin wth google.
+      if (isFromLogin) {
+        //**************REGISTER USER****************//
+        userCredential = await _auth.signInWithCredential(credential);
+      } else {
+        //!ELSE the user not going to create a new account, we just going to take the GUEST ACCOUNT (which is the current user) and link with credential of that GUEST ACCOUNT with the google signin acoount.
+        //**************CONVERT GUEST ACCOUNT INTO GOOGLE ACCOUNT****************//
+        userCredential =
+            await _auth.currentUser!.linkWithCredential(credential);
+      }
       UserModel userModel;
 
 //?to avoid the karma error we need to check is user new or old
       if (userCredential.additionalUserInfo!.isNewUser) {
-        //**************UserModel Instance****************//
+        //**************USER MODEL INSTANCE****************//
 
         //? if user is new set all these values and save to DB
         userModel = UserModel(
@@ -107,7 +115,39 @@ class AuthRepository {
       );
     }
   }
+  //**********GUEST SIGNUP***********//
 
+  FutureEither<UserModel> signInAsGuest() async {
+    try {
+      var userCredential = await _auth.signInAnonymously();
+
+//? if the use is sign in as a guest the user ought to be a NEW USER
+
+      //**************UserModel Instance****************//
+      //?set all these values and save to DB
+      UserModel userModel = UserModel(
+        username: 'Guest',
+        profilePic: Constants.avatarDefault,
+        banner: Constants.bannerDefault,
+        uid: userCredential.user!.uid,
+        isAuthenticated: false,
+        karma: 0,
+        awards: [],
+      );
+
+      //**************Save user credentials to database****************//
+      await _user.doc(userCredential.user!.uid).set(userModel.toMap());
+
+      return right(userModel);
+    } on FirebaseException catch (e) {
+      //? throwing this firebase exception to next catch block
+      throw e.message!;
+    } catch (e) {
+      return left(
+        Failure(e.toString()),
+      );
+    }
+  }
   //**************To get the user data Function****************//
 
   //! if the user is not new then we will ask to firebaseDB to give use back of the old user data containing this uid

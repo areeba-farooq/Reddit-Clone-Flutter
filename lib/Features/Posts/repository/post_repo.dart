@@ -59,6 +59,19 @@ class PostRepository {
             .toList());
   }
 
+  //**********DISPLAY 10 LATEST POSTS FOR GUESTS USERS**************//
+  Stream<List<PostModel>> fetchGuestPosts() {
+    return _posts
+        .orderBy('createdAt', descending: true)
+        .limit(10)
+        .snapshots()
+        .map((event) => event.docs
+            .map(
+              (e) => PostModel.fromMap(e.data() as Map<String, dynamic>),
+            )
+            .toList());
+  }
+
   //**********DELETE POST FUNCTION**************//
   FutureVoid deletePost(PostModel post) async {
     try {

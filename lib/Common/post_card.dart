@@ -57,7 +57,10 @@ class PostCard extends ConsumerWidget {
     final isTypeLink = postModel.type == 'link';
     final currentTheme = ref.watch(themeNotifierProvider);
     // final isLoading = ref.watch(postControllerProvider);
-    final user = ref.watch(userProvider);
+    final user = ref.watch(userProvider)!;
+
+    final isGuest = !user
+        .isAuthenticated; // if user is authenticated then the user is not a guest
     return Column(
       children: [
         Container(
@@ -113,7 +116,7 @@ class PostCard extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              if (postModel.uid == user!.uid)
+                              if (postModel.uid == user.uid)
                                 IconButton(
                                   onPressed: () => deletePost(ref),
                                   icon: Icon(
@@ -183,7 +186,8 @@ class PostCard extends ConsumerWidget {
                               Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () => upvotePost(ref),
+                                    onPressed:
+                                        isGuest ? () {} : () => upvotePost(ref),
                                     icon: Icon(
                                       Constants.up,
                                       size: 30,
@@ -198,7 +202,9 @@ class PostCard extends ConsumerWidget {
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                   IconButton(
-                                    onPressed: () => downvotePost(ref),
+                                    onPressed: isGuest
+                                        ? () {}
+                                        : () => downvotePost(ref),
                                     icon: Icon(
                                       Constants.down,
                                       size: 30,
@@ -244,39 +250,45 @@ class PostCard extends ConsumerWidget {
 
                               //************AWARDS******//
                               IconButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => Dialog(
-                                      backgroundColor:
-                                          currentTheme.backgroundColor,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(20),
-                                        child: GridView.builder(
-                                          shrinkWrap: true,
-                                          gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount: 4),
-                                          itemCount: user.awards.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            final award = user.awards[index];
-                                            return GestureDetector(
-                                              onTap: () => awardPost(
-                                                  ref, award, context),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Image.asset(
-                                                    Constants.awards[award]!),
+                                onPressed: isGuest
+                                    ? () {}
+                                    : () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => Dialog(
+                                            backgroundColor:
+                                                currentTheme.backgroundColor,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(20),
+                                              child: GridView.builder(
+                                                shrinkWrap: true,
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                        crossAxisCount: 4),
+                                                itemCount: user.awards.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  final award =
+                                                      user.awards[index];
+                                                  return GestureDetector(
+                                                    onTap: () => awardPost(
+                                                        ref, award, context),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Image.asset(
+                                                          Constants
+                                                              .awards[award]!),
+                                                    ),
+                                                  );
+                                                },
                                               ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
+                                            ),
+                                          ),
+                                        );
+                                      },
                                 icon: const Icon(Icons.card_giftcard_outlined),
                               ),
                             ],

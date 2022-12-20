@@ -32,6 +32,12 @@ final userPostsProvider =
   final postController = ref.watch(postControllerProvider.notifier);
   return postController.fetchUserPosts(communities);
 });
+//************* GUEST POST PROVIDER ********//
+
+final guestPostsProvider = StreamProvider((ref) {
+  final postController = ref.watch(postControllerProvider.notifier);
+  return postController.fetchGuestPosts();
+});
 
 //************* GETTING POST PROVIDER ********//
 
@@ -185,6 +191,11 @@ class PostController extends StateNotifier<bool> {
       return _postRepository.fetchUserPosts(communities);
     }
     return Stream.value([]);
+  }
+
+  //**********DISPLAY 10 LATEST POSTS FOR GUESTS USERS**************//
+  Stream<List<PostModel>> fetchGuestPosts() {
+    return _postRepository.fetchGuestPosts();
   }
 
   //**********DELETE POST FUNCTION**************//

@@ -35,7 +35,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     //!to display user uid we will convert statelesswidget to consumerwidget inoreder to contact with the user provider
-    final user = ref.watch(userProvider);
+    final user = ref.watch(userProvider)!;
+    final isGuest = !user
+        .isAuthenticated; // if user is authenticated then the user is not a guest
     final currentTheme = ref.watch(themeNotifierProvider);
     return Scaffold(
       appBar: AppBar(
@@ -60,7 +62,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             return IconButton(
               onPressed: () => profileDrawer(context),
               icon: CircleAvatar(
-                backgroundImage: NetworkImage(user!.profilePic),
+                backgroundImage: NetworkImage(user.profilePic),
               ),
             );
           })
@@ -68,23 +70,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Constants.tabWidgets[_page],
       drawer: const CommunityListDrawer(),
-      endDrawer: const ProfileDrawer(),
-      bottomNavigationBar: CupertinoTabBar(
-        activeColor: currentTheme.iconTheme.color,
-        backgroundColor: currentTheme.backgroundColor,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            label: 'Post',
-          ),
-        ],
-        onTap: onPageChange,
-        currentIndex: _page,
-      ),
+      endDrawer: isGuest ? null : const ProfileDrawer(),
+      bottomNavigationBar: isGuest
+          ? null
+          : CupertinoTabBar(
+              activeColor: currentTheme.iconTheme.color,
+              backgroundColor: currentTheme.backgroundColor,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.add_box_outlined),
+                  label: 'Post',
+                ),
+              ],
+              onTap: onPageChange,
+              currentIndex: _page,
+            ),
     );
   }
 }

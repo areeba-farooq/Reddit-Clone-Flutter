@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_clone/Core/utils.dart';
 import 'package:reddit_clone/Features/Auth/Repository/auth_repo.dart';
 
 import '../../../Models/user_model.dart';
@@ -46,10 +47,12 @@ class AuthController extends StateNotifier<bool> {
 
   Stream<User?> get authStateChange => _authRepository.authStateChange;
 
-  void signinWithGoogle(BuildContext context) async {
+//*********SIGN IN WITH GOOGLE FUNCTION***************//
+//isFromLogin: if the user signin with the guest account and then decided to signin weith Google then we will convert that guest account into google account.
+  void signinWithGoogle(BuildContext context, bool isFromLogin) async {
     state = true; //loading start
     //!from AuthRepository Class
-    final user = await _authRepository.signinWithGoogle();
+    final user = await _authRepository.signinWithGoogle(isFromLogin);
     state = false; //loading stops
     user.fold(
         (l) => (l.message.toString()),
@@ -58,6 +61,18 @@ class AuthController extends StateNotifier<bool> {
         //?_ref.read(userProvider.notifier) with this notifier we have access to multiple methods that will allow us to change the content
         (usermodel) =>
             _ref.read(userProvider.notifier).update((state) => usermodel));
+  }
+
+  //*********SIGN IN AS GUEST FUNCTION***************//
+  void signInAsGuest(BuildContext context) async {
+    state = true;
+    final user = await _authRepository.signInAsGuest();
+    state = false;
+    user.fold(
+      (l) => showSnackBar(l.message),
+      (userModel) =>
+          _ref.read(userProvider.notifier).update((state) => userModel),
+    );
   }
 
   Stream<UserModel> getUserData(String uid) {

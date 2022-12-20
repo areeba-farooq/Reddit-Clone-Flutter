@@ -8,11 +8,15 @@ import 'package:reddit_clone/Themes/pallets.dart';
 //!consumerWidget comes from riverpod library
 //?ConsumerWidget will allow use to use WidgetRef
 class SigninButton extends ConsumerWidget {
-  const SigninButton({Key? key}) : super(key: key);
+  //if the user signin with the guest account and then decided to signin weith Google then we will convert that guest account into google account.
+  final bool isFromLogin;
+  const SigninButton({Key? key, this.isFromLogin = true}) : super(key: key);
 
 //*this contact with the AuthController class
   void signinWithGoogle(BuildContext context, WidgetRef ref) {
-    ref.read(authControllerProvider.notifier).signinWithGoogle(context);
+    ref
+        .read(authControllerProvider.notifier)
+        .signinWithGoogle(context, isFromLogin);
   }
 
   @override

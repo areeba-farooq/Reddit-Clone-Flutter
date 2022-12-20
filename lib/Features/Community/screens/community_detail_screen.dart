@@ -29,6 +29,9 @@ class CommunityDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
+    final isGuest = !user
+        .isAuthenticated; // if user is authenticated then the user is not a guest
+
     return Scaffold(
       body: ref
           .watch(getCommunityByNameProvider(name.replaceAll('%20', ' ')))
@@ -73,37 +76,39 @@ class CommunityDetailScreen extends ConsumerWidget {
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                //? community.mods.contains(user.uid) we are checking if the user is the moderator of that community.
-                                community.mods.contains(user.uid)
-                                    ? OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                if (!isGuest)
+                                  //? community.mods.contains(user.uid) we are checking if the user is the moderator of that community.
+                                  community.mods.contains(user.uid)
+                                      ? OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 25),
                                           ),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 25),
-                                        ),
-                                        onPressed: () => navToModTools(context),
-                                        child: const Text('Mod Tools'),
-                                      )
-                                    : OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                          onPressed: () =>
+                                              navToModTools(context),
+                                          child: const Text('Mod Tools'),
+                                        )
+                                      : OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 25),
                                           ),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 25),
-                                        ),
-                                        onPressed: () => joinCommunity(
-                                            ref, context, community),
-                                        //?community.members.contains(user.uid) we are checking if the user is the part of that community
-                                        child: Text(
-                                            community.members.contains(user.uid)
-                                                ? 'Joined'
-                                                : 'Join'),
-                                      )
+                                          onPressed: () => joinCommunity(
+                                              ref, context, community),
+                                          //?community.members.contains(user.uid) we are checking if the user is the part of that community
+                                          child: Text(community.members
+                                                  .contains(user.uid)
+                                              ? 'Joined'
+                                              : 'Join'),
+                                        )
                               ],
                             ),
                             Padding(
