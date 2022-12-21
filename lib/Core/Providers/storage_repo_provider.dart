@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:reddit_clone/Core/Providers/firebase_providers.dart';
@@ -21,13 +22,22 @@ class StorageRepository {
       : _firebaseStorage = firebaseStorage;
 
   FutureEither<String> storeFile(
-      {required String path, required String id, required File? file}) async {
+      {required String path,
+      required String id,
+      required File? file,
+      required Uint8List? webFile}) async {
     try {
       //!the reference will point to the root of the storage bucket
       final ref = _firebaseStorage.ref().child(path).child(id);
-//!A class which indicates an on-going upload task
-      UploadTask uploadTask = ref.putFile(file!);
 
+      //!A class which indicates an on-going upload task
+      UploadTask uploadTask;
+//**FOR WEB**//
+      if (kIsWeb) {
+        uploadTask = ref.putData(webFile!);
+      } else {
+        uploadTask = ref.putFile(file!);
+      }
 //!returned as the result or on-going process of a [Task].
       final snapshot = await uploadTask;
 

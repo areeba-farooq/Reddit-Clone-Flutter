@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -54,23 +55,35 @@ class AuthRepository {
 //isFromLogin: if the user signin with the guest account and then decided to signin weith Google then we will convert that guest account into google account.
   FutureEither<UserModel> signinWithGoogle(bool isFromLogin) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final googleAuth = await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
       //? User credential
       UserCredential userCredential;
-      //! if user is from login screen then the user should signin wth google.
-      if (isFromLogin) {
-        //**************REGISTER USER****************//
-        userCredential = await _auth.signInWithCredential(credential);
+      //**LOGIN ON WEB**//
+      if (kIsWeb) {
+        //? access to the google auth provider
+        GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
+        //? we have access to reading the contacts of the user
+        googleAuthProvider
+            .addScope("https://www.googleapis.com/auth/contacts.readonly");
+        userCredential = await _auth.signInWithPopup(googleAuthProvider);
       } else {
-        //!ELSE the user not going to create a new account, we just going to take the GUEST ACCOUNT (which is the current user) and link with credential of that GUEST ACCOUNT with the google signin acoount.
-        //**************CONVERT GUEST ACCOUNT INTO GOOGLE ACCOUNT****************//
-        userCredential =
-            await _auth.currentUser!.linkWithCredential(credential);
+        //**LOGIN ON MOBILE**//
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        final googleAuth = await googleUser?.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+
+        //! if user is from login screen then the user should signin wth google.
+        if (isFromLogin) {
+          //**************REGISTER USER****************//
+          userCredential = await _auth.signInWithCredential(credential);
+        } else {
+          //!ELSE the user not going to create a new account, we just going to take the GUEST ACCOUNT (which is the current user) and link with credential of that GUEST ACCOUNT with the google signin acoount.
+          //**************CONVERT GUEST ACCOUNT INTO GOOGLE ACCOUNT****************//
+          userCredential =
+              await _auth.currentUser!.linkWithCredential(credential);
+        }
       }
       UserModel userModel;
 

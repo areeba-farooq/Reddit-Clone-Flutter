@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_clone/Core/Enums/enums.dart';
 import 'package:reddit_clone/Core/utils.dart';
@@ -150,12 +151,17 @@ class PostController extends StateNotifier<bool> {
     required String title,
     required CommunityModel selectedCommunity,
     required File? file,
+    required Uint8List? webFile,
   }) async {
     state = true;
     String postId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
     final imgRes = await _storageRepository.storeFile(
-        path: 'posts/${selectedCommunity.name}', id: postId, file: file);
+      path: 'posts/${selectedCommunity.name}',
+      id: postId,
+      file: file,
+      webFile: webFile,
+    );
 
     imgRes.fold((l) => showSnackBar(l.message), (r) async {
       final PostModel post = PostModel(

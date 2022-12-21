@@ -5,6 +5,7 @@ import 'package:reddit_clone/Common/loader.dart';
 import 'package:reddit_clone/Common/signin_button.dart';
 import 'package:reddit_clone/Core/Constants/constants.dart';
 import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
+import 'package:reddit_clone/Responsiveness/responsive.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -55,7 +56,7 @@ class LoginScreen extends ConsumerWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                const SigninButton()
+                const Responsive(child: SigninButton())
               ],
             ),
     );

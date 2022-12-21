@@ -6,6 +6,7 @@ import 'package:reddit_clone/Features/Community/screens/create_community_screen.
 import 'package:reddit_clone/Features/Community/screens/editcommunity_screen.dart';
 import 'package:reddit_clone/Features/Community/screens/modtools_screen.dart';
 import 'package:reddit_clone/Features/Home/home_screen.dart';
+import 'package:reddit_clone/Features/Posts/screens/add_post.dart';
 import 'package:reddit_clone/Features/Posts/screens/add_post_type.dart';
 import 'package:reddit_clone/Features/Posts/screens/comment_screen.dart';
 import 'package:reddit_clone/Features/UserProfile/screens/edit_profilescreen.dart';
@@ -72,6 +73,10 @@ final loggedInRoute = RouteMap(
           child: CommentsScreen(
             postId: route.pathParameters['postId']!,
           ),
+        ),
+    //! FOR WEB
+    '/add-post': (route) => const MaterialPage(
+          child: AddPostScreen(),
         ),
   },
 );

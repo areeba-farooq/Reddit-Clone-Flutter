@@ -1,4 +1,5 @@
 import 'package:any_link_preview/any_link_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reddit_clone/Common/error_text.dart';
@@ -7,6 +8,7 @@ import 'package:reddit_clone/Features/Auth/Controller/auth_controller.dart';
 import 'package:reddit_clone/Features/Community/controller/community_controller.dart';
 import 'package:reddit_clone/Features/Posts/controller/post_controller.dart';
 import 'package:reddit_clone/Models/post_model.dart';
+import 'package:reddit_clone/Responsiveness/responsive.dart';
 import 'package:reddit_clone/Themes/pallets.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -61,251 +63,290 @@ class PostCard extends ConsumerWidget {
 
     final isGuest = !user
         .isAuthenticated; // if user is authenticated then the user is not a guest
-    return Column(
-      children: [
-        Container(
-          decoration:
-              BoxDecoration(color: currentTheme.drawerTheme.backgroundColor),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 10)
-                          .copyWith(right: 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => navToCommunity(context),
-                                    child: CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                          postModel.communityProfilePic),
-                                      radius: 16,
+    return Responsive(
+      child: Column(
+        children: [
+          Container(
+            decoration:
+                BoxDecoration(color: currentTheme.drawerTheme.backgroundColor),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //? FOR WEB
+                if (kIsWeb)
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: isGuest ? () {} : () => upvotePost(ref),
+                        icon: Icon(
+                          Constants.up,
+                          size: 30,
+                          color: postModel.upvotes.contains(user.uid)
+                              ? Pallete.redColor
+                              : null,
+                        ),
+                      ),
+                      Text(
+                        '${postModel.upvotes.length - postModel.downvotes.length == 0 ? 'Vote' : postModel.upvotes.length - postModel.downvotes.length}',
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                      IconButton(
+                        onPressed: isGuest ? () {} : () => downvotePost(ref),
+                        icon: Icon(
+                          Constants.down,
+                          size: 30,
+                          color: postModel.downvotes.contains(user.uid)
+                              ? Pallete.blueColor
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 10)
+                            .copyWith(right: 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => navToCommunity(context),
+                                      child: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            postModel.communityProfilePic),
+                                        radius: 16,
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          'r/${postModel.communityName}',
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () => navToUserPF(context),
-                                          child: Text(
-                                            'u/${postModel.username}',
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            'r/${postModel.communityName}',
                                             style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (postModel.uid == user.uid)
-                                IconButton(
-                                  onPressed: () => deletePost(ref),
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Pallete.redColor,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          //******DISPLAYING AWARDS*********//
-                          if (postModel.awards.isNotEmpty) ...[
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              height: 25,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: postModel.awards.length,
-                                  itemBuilder: (context, index) {
-                                    final award = postModel.awards[index];
-                                    return Image.asset(
-                                      Constants.awards[award]!,
-                                      height: 25,
-                                    );
-                                  }),
-                            ),
-                          ],
-
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(top: 10.0, bottom: 8),
-                            child: Text(
-                              postModel.title,
-                              style: const TextStyle(
-                                  fontSize: 19, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          if (isTypeImage)
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.35,
-                              width: double.infinity,
-                              child: Image.network(
-                                postModel.link!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          if (isTypeText)
-                            Container(
-                                alignment: Alignment.bottomLeft,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 15),
-                                child: Text(postModel.description!)),
-                          if (isTypeLink)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 10),
-                              child: AnyLinkPreview(
-                                displayDirection:
-                                    UIDirection.uiDirectionHorizontal,
-                                link: postModel.link!,
-                              ),
-                            ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed:
-                                        isGuest ? () {} : () => upvotePost(ref),
-                                    icon: Icon(
-                                      Constants.up,
-                                      size: 30,
-                                      color:
-                                          postModel.upvotes.contains(user.uid)
-                                              ? Pallete.redColor
-                                              : null,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${postModel.upvotes.length - postModel.downvotes.length == 0 ? 'Vote' : postModel.upvotes.length - postModel.downvotes.length}',
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  IconButton(
-                                    onPressed: isGuest
-                                        ? () {}
-                                        : () => downvotePost(ref),
-                                    icon: Icon(
-                                      Constants.down,
-                                      size: 30,
-                                      color:
-                                          postModel.downvotes.contains(user.uid)
-                                              ? Pallete.blueColor
-                                              : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => navToComments(context),
-                                    icon: const Icon(Icons.comment),
-                                  ),
-                                  Text(
-                                    '${postModel.commentCount == 0 ? 'Comment' : postModel.commentCount}',
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                ],
-                              ),
-
-                              //**Want to show moderator icon if the user is moderator**// to access moderator
-                              ref
-                                  .watch(getCommunityByNameProvider(
-                                      postModel.communityName))
-                                  .when(
-                                      data: (data) {
-                                        if (data.mods.contains(user.uid)) {
-                                          return IconButton(
-                                            onPressed: () => deletePost(ref),
-                                            icon: const Icon(
-                                                Icons.admin_panel_settings),
-                                          );
-                                        }
-                                        return const SizedBox();
-                                      },
-                                      error: (error, stackTrace) =>
-                                          ErrorText(errortxt: error.toString()),
-                                      loading: () => const Loader()),
-
-                              //************AWARDS******//
-                              IconButton(
-                                onPressed: isGuest
-                                    ? () {}
-                                    : () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => Dialog(
-                                            backgroundColor:
-                                                currentTheme.backgroundColor,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(20),
-                                              child: GridView.builder(
-                                                shrinkWrap: true,
-                                                gridDelegate:
-                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                        crossAxisCount: 4),
-                                                itemCount: user.awards.length,
-                                                itemBuilder:
-                                                    (BuildContext context,
-                                                        int index) {
-                                                  final award =
-                                                      user.awards[index];
-                                                  return GestureDetector(
-                                                    onTap: () => awardPost(
-                                                        ref, award, context),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Image.asset(
-                                                          Constants
-                                                              .awards[award]!),
-                                                    ),
-                                                  );
-                                                },
+                                          GestureDetector(
+                                            onTap: () => navToUserPF(context),
+                                            child: Text(
+                                              'u/${postModel.username}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
                                               ),
                                             ),
                                           ),
-                                        );
-                                      },
-                                icon: const Icon(Icons.card_giftcard_outlined),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (postModel.uid == user.uid)
+                                  IconButton(
+                                    onPressed: () => deletePost(ref),
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Pallete.redColor,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            //******DISPLAYING AWARDS*********//
+                            if (postModel.awards.isNotEmpty) ...[
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              SizedBox(
+                                height: 25,
+                                child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: postModel.awards.length,
+                                    itemBuilder: (context, index) {
+                                      final award = postModel.awards[index];
+                                      return Image.asset(
+                                        Constants.awards[award]!,
+                                        height: 25,
+                                      );
+                                    }),
                               ),
                             ],
-                          ),
-                        ],
+
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 10.0, bottom: 8),
+                              child: Text(
+                                postModel.title,
+                                style: const TextStyle(
+                                    fontSize: 19, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            if (isTypeImage)
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.35,
+                                width: double.infinity,
+                                child: Image.network(
+                                  postModel.link!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            if (isTypeText)
+                              Container(
+                                  alignment: Alignment.bottomLeft,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
+                                  child: Text(postModel.description!)),
+                            if (isTypeLink)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18, vertical: 10),
+                                child: AnyLinkPreview(
+                                  displayDirection:
+                                      UIDirection.uiDirectionHorizontal,
+                                  link: postModel.link!,
+                                ),
+                              ),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if (!kIsWeb) //if the user is not on web then show these icons
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: isGuest
+                                            ? () {}
+                                            : () => upvotePost(ref),
+                                        icon: Icon(
+                                          Constants.up,
+                                          size: 30,
+                                          color: postModel.upvotes
+                                                  .contains(user.uid)
+                                              ? Pallete.redColor
+                                              : null,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${postModel.upvotes.length - postModel.downvotes.length == 0 ? 'Vote' : postModel.upvotes.length - postModel.downvotes.length}',
+                                        style: const TextStyle(fontSize: 17),
+                                      ),
+                                      IconButton(
+                                        onPressed: isGuest
+                                            ? () {}
+                                            : () => downvotePost(ref),
+                                        icon: Icon(
+                                          Constants.down,
+                                          size: 30,
+                                          color: postModel.downvotes
+                                                  .contains(user.uid)
+                                              ? Pallete.blueColor
+                                              : null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => navToComments(context),
+                                      icon: const Icon(Icons.comment),
+                                    ),
+                                    Text(
+                                      '${postModel.commentCount == 0 ? 'Comment' : postModel.commentCount}',
+                                      style: const TextStyle(fontSize: 17),
+                                    ),
+                                  ],
+                                ),
+
+                                //**Want to show moderator icon if the user is moderator**// to access moderator
+                                ref
+                                    .watch(getCommunityByNameProvider(
+                                        postModel.communityName))
+                                    .when(
+                                        data: (data) {
+                                          if (data.mods.contains(user.uid)) {
+                                            return IconButton(
+                                              onPressed: () => deletePost(ref),
+                                              icon: const Icon(
+                                                  Icons.admin_panel_settings),
+                                            );
+                                          }
+                                          return const SizedBox();
+                                        },
+                                        error: (error, stackTrace) => ErrorText(
+                                            errortxt: error.toString()),
+                                        loading: () => const Loader()),
+
+                                //************AWARDS******//
+                                IconButton(
+                                  onPressed: isGuest
+                                      ? () {}
+                                      : () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => Dialog(
+                                              backgroundColor:
+                                                  currentTheme.backgroundColor,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20),
+                                                child: GridView.builder(
+                                                  shrinkWrap: true,
+                                                  gridDelegate:
+                                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                                          crossAxisCount: 4),
+                                                  itemCount: user.awards.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    final award =
+                                                        user.awards[index];
+                                                    return GestureDetector(
+                                                      onTap: () => awardPost(
+                                                          ref, award, context),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Image.asset(
+                                                            Constants.awards[
+                                                                award]!),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                  icon:
+                                      const Icon(Icons.card_giftcard_outlined),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(
-          height: 10,
-        )
-      ],
+          const SizedBox(
+            height: 10,
+          )
+        ],
+      ),
     );
   }
 }
