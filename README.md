@@ -3,6 +3,7 @@ Full Stack Reddit Clone | Flutter | Riverpod | Firebase.
 
 
 ## Preview 👇
+![reddit clone](https://user-images.githubusercontent.com/41040479/225568991-03631a93-bb83-458a-aed9-d8471767df54.png)
 
 
 ## PACKAGES:
